@@ -8,21 +8,27 @@
 ### 🛠️ Tech Stack
 
 **Programming Languages**
+
 Python · R · SQL
 
 **Data Science & Machine Learning**
+
 pandas · NumPy · SciPy · scikit-learn · nilearn · Jupyter Notebooks
 
 **Statistical Modeling & Causal Inference**
+
 tidyverse · fixest · ggplot2 · Difference-in-Differences · Regression · Classification
 
 **Analytics & Visualization**
+
 Tableau · Power BI · Microsoft Excel
 
 **Methods & Techniques**
+
 PCA · Clustering (K-means, EM, Hierarchical) · Cross-Validation · Regularization (Ridge/LASSO) · Dimensionality Reduction
 
 **Developer Tools**
+
 Git · GitHub · VS Code · Positron
 
 ---
@@ -31,6 +37,7 @@ Git · GitHub · VS Code · Positron
 
 **Data Science & Analytics — UC San Diego**
 - Applied ML, causal inference, and statistical modeling across academic and independent projects.
+  
 - Combined R, Python, and LLM APIs for large-scale text classification and analysis.
 
 ---
