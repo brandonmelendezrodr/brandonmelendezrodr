@@ -79,5 +79,3 @@ Tools: SQL · Tableau · Power BI
 **Email:** brandonmelendezrodr@gmail.com
 **LinkedIn:** [linkedin.com/in/brandonmelendezrodriguez](https://linkedin.com/in/brandonmelendezrodriguez)
 
-**GitHub:** github.com/[USERNAME]
-
