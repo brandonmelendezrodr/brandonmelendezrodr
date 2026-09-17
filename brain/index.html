@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Neuroatlas — An Interactive Brain</title>
-<meta name="description" content="An interactive atlas of the human brain: explore what every region does, and watch neurons pulse along real signal pathways as the brain performs an action.">
+<title>Neuroatlas — A Brain You Can Turn</title>
+<meta name="description" content="A rotatable 3D atlas of the human brain: explore what every region does, and watch neurons pulse along real signal pathways as the brain performs an action.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,28 +66,23 @@
   <!-- ─────────────── CENTER: the brain ─────────────── -->
   <section class="stage-wrap" aria-label="Brain diagram">
     <div class="stage" id="stage">
-      <svg id="brain" viewBox="0 0 1000 730" role="img" aria-label="Sagittal diagram of the human brain. Use tab and enter to explore regions.">
-        <defs>
-          <radialGradient id="deep-glow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#7cf3ff" stop-opacity=".30"/>
-            <stop offset="100%" stop-color="#7cf3ff" stop-opacity="0"/>
-          </radialGradient>
-          <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="7" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        <ellipse cx="470" cy="300" rx="420" ry="280" fill="url(#deep-glow)"/>
-        <g id="g-cortex"></g>
-        <g id="g-deep"></g>
-        <g id="g-stem"></g>
-        <g id="g-areas" class="areas-hidden"></g>
-        <g id="g-external"></g>
-        <g id="g-labels"></g>
-      </svg>
-      <canvas id="fx" aria-hidden="true"></canvas>
+      <canvas id="view" aria-label="Three-dimensional model of the human brain. Drag to rotate, scroll to zoom, click a structure to read about it."></canvas>
+      <div class="labels" id="labels" aria-hidden="true"></div>
+      <div class="loading" id="loading"><span class="spin"></span><span>Folding cortex…</span></div>
+
+      <div class="viewctl" id="viewctl">
+        <button class="vbtn" data-view="left"  type="button" title="Left lateral view">Left</button>
+        <button class="vbtn" data-view="front" type="button" title="Anterior view">Front</button>
+        <button class="vbtn" data-view="top"   type="button" title="Superior view">Top</button>
+        <button class="vbtn" data-view="mid"   type="button" title="Mid-sagittal view">Midline</button>
+      </div>
+      <div class="viewctl viewctl-right">
+        <button class="vbtn" id="btn-xray" type="button" aria-pressed="false" title="See through the cortex to the deep structures">Cutaway</button>
+        <button class="vbtn" id="btn-spin" type="button" aria-pressed="true" title="Rotate automatically when idle">Auto-spin</button>
+      </div>
+
       <div class="tooltip" id="tooltip" hidden></div>
-      <div class="stage-badge" id="stage-badge">sagittal view · left hemisphere, facing left</div>
+      <div class="stage-badge" id="stage-badge">drag to rotate · scroll to zoom</div>
       <div class="quizbar" id="quizbar" hidden>
         <div class="quiz-q"><span class="quiz-kicker">Find the region that…</span><strong id="quiz-prompt">—</strong></div>
         <div class="quiz-meta"><span id="quiz-score">0 / 0</span><button class="btn btn-mini" id="quiz-skip" type="button">Skip</button><button class="btn btn-mini" id="quiz-exit" type="button">Exit</button></div>
@@ -110,12 +105,14 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
     <h2 id="help-title">How to use Neuroatlas</h2>
     <ul>
-      <li><strong>Hover or tab</strong> across the diagram to name a structure; <strong>click</strong> it to read what it does, what happens when it's damaged, and one thing worth remembering.</li>
+      <li><strong>Drag</strong> anywhere on the brain to turn it through 360°, <strong>scroll</strong> to zoom, and use the view buttons for the standard anatomical angles. It spins slowly on its own until you touch it.</li>
+      <li><strong>Hover</strong> to name a structure; <strong>click</strong> it to read what it does, what happens when it's damaged, and one thing worth remembering.</li>
+      <li><strong>Cutaway</strong> makes the cortex translucent so you can see the thalamus, hippocampus, amygdala and the rest of the deep structures in place inside it.</li>
       <li><strong>Run an action</strong> from the left. A packet of activity travels the actual route the signal takes, pausing at each relay so you can read what that structure contributes.</li>
-      <li><strong>Functional areas</strong> (motor strip, Broca's, Wernicke's, V1…) sit on top of the lobes — toggle them on at the bottom left.</li>
-      <li><strong>Quiz me</strong> turns the diagram into a test: read the function, click the structure.</li>
+      <li><strong>Functional areas</strong> (motor strip, Broca's, Wernicke's, V1…) are painted onto the cortex itself — toggle them on at the bottom left.</li>
+      <li><strong>Quiz me</strong> turns the model into a test: read the function, find the structure, click it.</li>
     </ul>
-    <p class="muted small">Anatomy is schematic — a teaching diagram, not a scan. Deep structures are drawn as if the hemisphere were cut down the middle.</p>
+    <p class="muted small">The cortex is generated fold by fold at load — the gyri, sulci and major fissures are real geometry, not a texture — but this is a teaching model, not a scan. Proportions and positions are anatomical; the individual folds are nobody’s in particular.</p>
     <button class="btn" id="help-close" type="button">Got it</button>
   </div>
 </div>
@@ -126,6 +123,8 @@
   <span>built by Brandon Melendez-Rodriguez</span>
 </footer>
 
+<script src="vendor/three.min.js"></script>
+<script src="brain3d.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>

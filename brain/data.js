@@ -1,9 +1,13 @@
 /* ============================================================================
    Neuroatlas — anatomy, content and signal pathways.
 
-   Geometry lives in a 1000 x 730 user-space grid (see the SVG viewBox).
-   The brain is drawn in sagittal view, facing left, so "anterior" is -x.
-   Each region carries a `node`: the point that signal pulses route through.
+   Geometry is 3D and brain-local, with 1.0 ~ 8cm:  +x right, +y superior,
+   +z anterior. Each region carries a `node` (the point labels anchor to and
+   signal pulses route through) and a `solid` describing how it is built:
+   'cortex' territories are painted onto the cortical mesh, everything else
+   gets real geometry. Paired structures set `mirror` and are built twice.
+   Nodes sit at +x, the LEFT hemisphere, where language is lateralised, so a
+   pathway stays on one side of the brain the way a real signal does.
    ========================================================================== */
 (function (global) {
   'use strict';
@@ -20,8 +24,8 @@
     /* ── Cerebral lobes ───────────────────────────────────────────────── */
     {
       id: 'frontal', name: 'Frontal Lobe', group: 'lobes', layer: 'cortex',
-      color: '#6ea8ff', node: [268, 236], label: [236, 202], anchor: 'middle',
-      d: 'M140,300 C145,205 235,125 360,112 C410,104 455,101 500,105 C480,170 450,250 420,330 C370,350 310,368 255,375 C210,362 160,340 140,300 Z',
+      color: '#6ea8ff', node: [0.44, 0.2, 0.66],
+      solid: { kind: 'cortex' },
       summary: 'The largest lobe, and the last to finish wiring — it is not fully mature until the mid-twenties. Plans, decisions and movement commands are born here.',
       does: [
         'Planning, judgement and decision-making',
@@ -36,8 +40,8 @@
     },
     {
       id: 'parietal', name: 'Parietal Lobe', group: 'lobes', layer: 'cortex',
-      color: '#4fd6c2', node: [580, 188], label: [608, 180], anchor: 'middle',
-      d: 'M500,105 C580,103 650,120 700,155 C685,200 660,250 640,292 C580,308 500,322 420,330 C450,250 480,170 500,105 Z',
+      color: '#4fd6c2', node: [0.38, 0.56, -0.24],
+      solid: { kind: 'cortex' },
       summary: 'Builds a map of your body and of the space around it, fusing touch, limb position and vision into a single coherent sense of "here".',
       does: [
         'Touch, temperature, pressure and pain (somatosensory cortex)',
@@ -52,8 +56,8 @@
     },
     {
       id: 'temporal', name: 'Temporal Lobe', group: 'lobes', layer: 'cortex',
-      color: '#ffb454', node: [330, 428], label: [318, 452], anchor: 'middle',
-      d: 'M255,375 C310,368 370,350 420,330 C500,322 580,308 640,292 C652,330 650,360 636,392 C580,435 500,466 420,468 C350,470 295,450 262,416 C254,404 252,390 255,375 Z',
+      color: '#ffb454', node: [0.7, -0.38, 0.1],
+      solid: { kind: 'cortex' },
       summary: 'Hearing, language comprehension and object recognition — and, folded inside it, the machinery that turns experience into memory.',
       does: [
         'Processing sound, rhythm and speech (auditory cortex)',
@@ -67,8 +71,8 @@
     },
     {
       id: 'occipital', name: 'Occipital Lobe', group: 'lobes', layer: 'cortex',
-      color: '#c78cff', node: [742, 268], label: [760, 244], anchor: 'middle',
-      d: 'M700,155 C770,190 805,245 805,305 C805,355 785,390 745,408 C710,412 675,400 645,378 C648,345 642,318 640,292 C660,250 685,200 700,155 Z',
+      color: '#c78cff', node: [0.26, 0.06, -0.88],
+      solid: { kind: 'cortex' },
       summary: 'Almost entirely devoted to vision. Signals arrive as edges, contrast and motion, and are assembled from there into a world.',
       does: [
         'Primary visual cortex (V1): orientation, edges, contrast',
@@ -85,8 +89,8 @@
     /* ── Deep & limbic ────────────────────────────────────────────────── */
     {
       id: 'corpuscallosum', name: 'Corpus Callosum', group: 'limbic', layer: 'deep',
-      color: '#9fb4d8', node: [492, 196], label: [492, 166], anchor: 'middle',
-      d: 'M336,292 C342,222 408,178 492,176 C576,174 636,214 648,272 L620,280 C608,232 566,204 494,206 C420,208 372,244 364,296 Z',
+      color: '#c3d2ea', node: [0.05, 0.31, -0.02],
+      solid: { kind: 'callosum' },
       summary: 'Around 200 million fibres arching between the hemispheres — the largest bundle of white matter in the brain.',
       does: [
         'Carrying information between the left and right hemispheres',
@@ -99,8 +103,8 @@
     },
     {
       id: 'basalganglia', name: 'Basal Ganglia', group: 'limbic', layer: 'deep',
-      color: '#8be0a4', node: [418, 270], label: [372, 250], anchor: 'end',
-      shape: 'ellipse', cx: 418, cy: 270, rx: 42, ry: 27, rot: -22,
+      color: '#8be0a4', node: [0.245, 0.015, 0.055],
+      solid: { kind: 'ellipsoid', r: [0.070, 0.145, 0.225], c: [0.245, 0.015, 0.055], wobble: 0.10, mirror: true },
       summary: 'Deep nuclei that select which action runs — and quietly compress actions you repeat into automatic habits.',
       does: [
         'Choosing and initiating movement; suppressing the alternatives',
@@ -114,8 +118,8 @@
     },
     {
       id: 'thalamus', name: 'Thalamus', group: 'limbic', layer: 'deep',
-      color: '#ffd166', node: [492, 280], label: [540, 258], anchor: 'start',
-      shape: 'ellipse', cx: 492, cy: 280, rx: 52, ry: 34, rot: -12,
+      color: '#ffd166', node: [0.115, 0.02, -0.05],
+      solid: { kind: 'ellipsoid', r: [0.085, 0.105, 0.190], c: [0.115, 0.020, -0.050], wobble: 0.07, mirror: true },
       summary: 'The switchboard. Every sense except smell stops here before it is allowed to reach the cortex.',
       does: [
         'Relaying vision, hearing, touch and taste to the cortex',
@@ -129,8 +133,8 @@
     },
     {
       id: 'hypothalamus', name: 'Hypothalamus', group: 'limbic', layer: 'deep',
-      color: '#ff9f6b', node: [448, 328], label: [386, 316], anchor: 'end',
-      shape: 'ellipse', cx: 448, cy: 328, rx: 32, ry: 17, rot: -8,
+      color: '#ff9f6b', node: [0.062, -0.155, 0.045],
+      solid: { kind: 'ellipsoid', r: [0.055, 0.048, 0.075], c: [0.062, -0.155, 0.045], wobble: 0.08, mirror: true },
       summary: 'Almond-sized, and it runs the body. Temperature, hunger, thirst, sleep, stress, hormones and drive all route through here.',
       does: [
         'Body temperature, hunger and thirst',
@@ -145,8 +149,8 @@
     },
     {
       id: 'pituitary', name: 'Pituitary Gland', group: 'limbic', layer: 'deep',
-      color: '#ff8fb1', node: [432, 372], label: [380, 424], anchor: 'end',
-      shape: 'circle', cx: 432, cy: 372, r: 13,
+      color: '#ff8fb1', node: [0, -0.3, 0.095],
+      solid: [{ kind: 'ellipsoid', r: [0.052, 0.046, 0.052], c: [0, -0.300, 0.095], wobble: 0.05 }, { kind: 'tube', pts: [[0, -0.185, 0.055], [0, -0.245, 0.078], [0, -0.285, 0.092]], rN: 0.020, rB: 0.020 }],
       summary: 'The master gland, hanging from the hypothalamus on a stalk. It translates neural orders into hormones and releases them into the bloodstream.',
       does: [
         'Growth hormone',
@@ -160,8 +164,8 @@
     },
     {
       id: 'hippocampus', name: 'Hippocampus', group: 'limbic', layer: 'deep',
-      color: '#7cf3ff', node: [462, 412], label: [512, 442], anchor: 'start',
-      d: 'M398,396 C424,374 470,376 505,396 C532,411 540,436 522,448 C504,459 486,444 470,430 C444,410 420,408 398,396 Z',
+      color: '#7cf3ff', node: [0.32, -0.36, -0.03],
+      solid: { kind: 'tube', pts: [[-0.285, -0.375, 0.135], [-0.335, -0.400, -0.015], [-0.320, -0.330, -0.175], [-0.235, -0.230, -0.275]], rN: 0.052, rB: 0.046, mirror: true },
       summary: 'Named for its seahorse shape. It does not store your past — it binds experience into episodes and hands them to the cortex to keep.',
       does: [
         'Forming new episodic memories — events, with a time and a place',
@@ -175,8 +179,8 @@
     },
     {
       id: 'amygdala', name: 'Amygdala', group: 'limbic', layer: 'deep',
-      color: '#ff6b6b', node: [372, 392], label: [318, 364], anchor: 'end',
-      shape: 'ellipse', cx: 372, cy: 392, rx: 26, ry: 20, rot: 18,
+      color: '#ff6b6b', node: [0.305, -0.335, 0.185],
+      solid: { kind: 'ellipsoid', r: [0.075, 0.062, 0.085], c: [0.305, -0.335, 0.185], wobble: 0.11, mirror: true },
       summary: 'The threat detector. It stamps experience with emotional weight — and it gets the news before you consciously do.',
       does: [
         'Detecting threat and generating fear',
@@ -190,8 +194,8 @@
     },
     {
       id: 'olfactory', name: 'Olfactory Bulb', group: 'limbic', layer: 'deep',
-      color: '#d8e06b', node: [218, 380], label: [176, 402], anchor: 'end',
-      d: 'M178,370 C202,362 240,362 262,370 C270,380 264,394 248,398 C220,404 190,398 176,386 Z',
+      color: '#d8e06b', node: [0.095, -0.455, 0.7],
+      solid: { kind: 'ellipsoid', r: [0.042, 0.032, 0.105], c: [0.095, -0.455, 0.700], wobble: 0.06, mirror: true },
       summary: 'The landing pad for smell — and the only sensory route that skips the thalamus entirely.',
       does: [
         'Detecting and sorting odour molecules',
@@ -206,8 +210,8 @@
     /* ── Brainstem & cerebellum ───────────────────────────────────────── */
     {
       id: 'midbrain', name: 'Midbrain', group: 'stem', layer: 'stem',
-      color: '#9be07a', node: [545, 366], label: [612, 350], anchor: 'start',
-      d: 'M520,338 C552,336 572,356 576,384 C550,394 522,394 500,384 C504,364 510,350 520,338 Z',
+      color: '#9be07a', node: [0, -0.27, -0.11],
+      solid: { kind: 'stem', part: 'midbrain' },
       summary: 'The top of the brainstem: reflexive orienting to sights and sounds, and the dopamine cells that power movement and motivation.',
       does: [
         'Eye movement and pupil reflexes',
@@ -221,8 +225,8 @@
     },
     {
       id: 'pons', name: 'Pons', group: 'stem', layer: 'stem',
-      color: '#7fd6a0', node: [543, 424], label: [488, 492], anchor: 'end',
-      d: 'M576,384 C580,410 583,432 582,456 C554,464 526,462 504,452 C484,430 484,404 500,384 C522,394 550,394 576,384 Z',
+      color: '#7fd6a0', node: [0, -0.46, -0.125],
+      solid: { kind: 'stem', part: 'pons' },
       summary: 'A bridge of fibres joining the cerebellum to the rest of the brain — and the switch that runs REM sleep.',
       does: [
         'Relaying signals between cortex and cerebellum',
@@ -236,8 +240,8 @@
     },
     {
       id: 'medulla', name: 'Medulla Oblongata', group: 'stem', layer: 'stem',
-      color: '#63c98c', node: [570, 512], label: [548, 556], anchor: 'end',
-      d: 'M582,456 C586,492 592,530 594,578 L554,580 C554,534 548,498 544,454 C557,461 570,460 582,456 Z',
+      color: '#63c98c', node: [0, -0.7, -0.21],
+      solid: { kind: 'stem', part: 'medulla' },
       summary: 'The oldest and least negotiable part of the brain. It runs the things you would die without within minutes.',
       does: [
         'Heart rate and blood pressure',
@@ -251,8 +255,8 @@
     },
     {
       id: 'spinal', name: 'Spinal Cord', group: 'stem', layer: 'stem',
-      color: '#4fb98c', node: [574, 612], label: [620, 620], anchor: 'start',
-      d: 'M554,580 L594,578 C598,610 600,636 598,664 L556,666 C556,636 552,608 554,580 Z',
+      color: '#4fb98c', node: [0, -0.93, -0.23],
+      solid: { kind: 'stem', part: 'spinal' },
       summary: 'The cable — and a processor in its own right. Reflexes are decided here, without consulting the brain.',
       does: [
         'Carrying motor commands down and sensory signals up',
@@ -265,8 +269,8 @@
     },
     {
       id: 'cerebellum', name: 'Cerebellum', group: 'stem', layer: 'stem',
-      color: '#ff7a9c', node: [688, 472], label: [700, 474], anchor: 'middle',
-      d: 'M622,398 C685,382 762,402 782,452 C802,500 768,548 700,556 C638,562 596,532 590,488 C584,446 596,412 622,398 Z',
+      color: '#ff7a9c', node: [0.22, -0.46, -0.72],
+      solid: { kind: 'cerebellum' },
       summary: 'The "little brain". Ten percent of brain volume, and more than half of all your neurons — roughly 69 billion of them.',
       does: [
         'Coordination, balance and posture',
@@ -283,8 +287,8 @@
     /* ── Functional areas (overlay) ───────────────────────────────────── */
     {
       id: 'prefrontal', name: 'Prefrontal Cortex', group: 'functional', layer: 'area', parent: 'frontal',
-      color: '#8fc0ff', node: [228, 246], label: [206, 292], anchor: 'middle',
-      d: 'M142,296 C148,206 236,126 352,113 C324,182 296,258 280,350 C226,362 172,338 142,296 Z',
+      color: '#8fc0ff', node: [0.28, 0.18, 0.84],
+      solid: { kind: 'cortex' },
       summary: 'The executive. Goals, self-control, and the ability to simulate a future you have not lived yet.',
       does: [
         'Setting goals and sequencing steps toward them',
@@ -299,8 +303,8 @@
     },
     {
       id: 'motor', name: 'Primary Motor Cortex', group: 'functional', layer: 'area', parent: 'frontal',
-      color: '#ff9f43', node: [452, 216], label: [430, 150], anchor: 'end',
-      d: 'M500,105 C480,170 450,250 420,330 L382,337 C398,258 430,172 452,110 Z',
+      color: '#ff9f43', node: [0.5, 0.5, -0.03],
+      solid: { kind: 'cortex' },
       summary: 'The strip along the front edge of the central sulcus that issues movement commands, laid out body part by body part.',
       does: [
         'Sending the command for voluntary movement',
@@ -313,8 +317,8 @@
     },
     {
       id: 'somatosensory', name: 'Somatosensory Cortex', group: 'functional', layer: 'area', parent: 'parietal',
-      color: '#5ee0c8', node: [502, 214], label: [566, 136], anchor: 'start',
-      d: 'M500,105 C480,170 450,250 420,330 L462,326 C482,250 514,170 546,112 Z',
+      color: '#5ee0c8', node: [0.5, 0.5, -0.2],
+      solid: { kind: 'cortex' },
       summary: 'The strip just behind the central sulcus, where touch arrives and is placed on the body map.',
       does: [
         'Locating touch, pressure, vibration and temperature on the body',
@@ -327,8 +331,8 @@
     },
     {
       id: 'broca', name: "Broca’s Area", group: 'functional', layer: 'area', parent: 'frontal',
-      color: '#ffd166', node: [302, 346], label: [268, 322], anchor: 'end',
-      shape: 'ellipse', cx: 302, cy: 346, rx: 36, ry: 17, rot: -12,
+      color: '#ffd166', node: [0.7, -0.16, 0.4],
+      solid: { kind: 'cortex' },
       summary: 'Speech production: grammar, and the motor plan that turns an intention into moving lips.',
       does: [
         'Assembling grammar and word order',
@@ -341,8 +345,8 @@
     },
     {
       id: 'wernicke', name: "Wernicke’s Area", group: 'functional', layer: 'area', parent: 'temporal',
-      color: '#c78cff', node: [566, 336], label: [604, 296], anchor: 'start',
-      shape: 'ellipse', cx: 566, cy: 336, rx: 40, ry: 20, rot: -8,
+      color: '#c78cff', node: [0.75, -0.06, -0.25],
+      solid: { kind: 'cortex' },
       summary: 'Language comprehension — where sound becomes meaning.',
       does: [
         'Extracting meaning from heard and read words',
@@ -355,8 +359,8 @@
     },
     {
       id: 'auditory', name: 'Primary Auditory Cortex', group: 'functional', layer: 'area', parent: 'temporal',
-      color: '#ffb454', node: [468, 352], label: [502, 318], anchor: 'middle',
-      shape: 'ellipse', cx: 468, cy: 352, rx: 38, ry: 18, rot: -6,
+      color: '#ffb454', node: [0.73, -0.15, 0.06],
+      solid: { kind: 'cortex' },
       summary: 'Where sound first reaches the cortex: frequency, timing and location.',
       does: [
         'Analysing pitch and loudness',
@@ -369,8 +373,8 @@
     },
     {
       id: 'visual', name: 'Primary Visual Cortex (V1)', group: 'functional', layer: 'area', parent: 'occipital',
-      color: '#b18cff', node: [760, 330], label: [790, 372], anchor: 'middle',
-      shape: 'ellipse', cx: 760, cy: 330, rx: 38, ry: 32, rot: 0,
+      color: '#b18cff', node: [0.19, 0, -0.94],
+      solid: { kind: 'cortex' },
       summary: 'The first cortical stop for vision. Cells here fire for an edge at a particular angle, in a particular spot.',
       does: [
         'Detecting oriented edges and contrast',
@@ -386,12 +390,12 @@
 
   /* External input/output nodes — the body, drawn outside the brain. */
   var EXTERNAL = [
-    { id: 'eyes',    name: 'Eyes',     node: [88, 388],  label: [88, 362],  icon: 'eye' },
-    { id: 'nose',    name: 'Nose',     node: [118, 452], label: [104, 480], icon: 'nose' },
-    { id: 'ears',    name: 'Ear',      node: [204, 578], label: [186, 604], icon: 'ear' },
-    { id: 'skin',    name: 'Skin',     node: [322, 636], label: [310, 664], icon: 'skin' },
-    { id: 'muscles', name: 'Muscles',  node: [466, 662], label: [462, 690], icon: 'muscle' },
-    { id: 'blood',   name: 'Adrenal glands', node: [706, 632], label: [736, 660], icon: 'drop' }
+    { id: 'eyes',    name: 'Eyes',           node: [0.30, -0.30,  1.26], icon: 'eye' },
+    { id: 'nose',    name: 'Nose',           node: [0.12, -0.58,  1.18], icon: 'nose' },
+    { id: 'ears',    name: 'Ear',            node: [0.96, -0.26,  0.02], icon: 'ear' },
+    { id: 'skin',    name: 'Skin',           node: [1.34, -1.02,  0.40], icon: 'skin' },
+    { id: 'muscles', name: 'Muscles',        node: [1.16, -1.28,  0.14], icon: 'muscle' },
+    { id: 'blood',   name: 'Adrenal glands', node: [0.55, -1.30, -0.10], icon: 'drop' }
   ];
 
   global.BRAIN = { GROUPS: GROUPS, REGIONS: REGIONS, EXTERNAL: EXTERNAL };
