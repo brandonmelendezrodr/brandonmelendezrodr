@@ -221,16 +221,16 @@
      3. Orbit rig
      ───────────────────────────────────────────────────────────────────── */
   var cam = {
-    theta: Math.PI / 2 - 0.52, phi: 1.30, radius: 2.95,
+    theta: Math.PI / 2 - 0.52, phi: 1.30, radius: 3.45,
     vTheta: 0, vPhi: 0, target: new T.Vector3(0, -0.18, 0),
     spin: !reduced, idle: 0, dragging: false
   };
   /* Viewing from +x is the left lateral view, and it puts anterior on the
      left of the screen — the orientation neuroanatomy figures are drawn in. */
   var VIEWS = {
-    left:  { theta: Math.PI / 2,        phi: Math.PI / 2, radius: 2.80 },
-    front: { theta: 0,                  phi: Math.PI / 2, radius: 2.80 },
-    top:   { theta: Math.PI / 2,        phi: 0.14,        radius: 2.80 },
+    left:  { theta: Math.PI / 2,        phi: Math.PI / 2, radius: 3.35 },
+    front: { theta: 0,                  phi: Math.PI / 2, radius: 3.35 },
+    top:   { theta: Math.PI / 2,        phi: 0.16,        radius: 3.35 },
     mid:   { theta: Math.PI / 2 - 0.52, phi: 1.30,        radius: 3.25 }
   };
   var glide = null;
@@ -242,6 +242,12 @@
       cam.target.y + r * Math.cos(cam.phi),
       cam.target.z + r * sp * Math.cos(cam.theta)
     );
+    /* Looking straight down or straight up, world-up is parallel to the view
+       direction and the roll is undefined — which rolled the superior view a
+       quarter turn. Blend the up vector toward anterior near either pole, so
+       top and bottom views come out with the front of the brain upward. */
+    var polar = 1 - B.smoothstep(0.22, 0.62, Math.min(cam.phi, Math.PI - cam.phi));
+    camera.up.set(0, 1 - polar, polar).normalize();
     camera.lookAt(cam.target);
   }
 

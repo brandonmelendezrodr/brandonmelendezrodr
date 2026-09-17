@@ -392,7 +392,7 @@
   var EXTERNAL = [
     { id: 'eyes',    name: 'Eyes',           node: [0.30, -0.30,  1.26], icon: 'eye' },
     { id: 'nose',    name: 'Nose',           node: [0.12, -0.58,  1.18], icon: 'nose' },
-    { id: 'ears',    name: 'Ear',            node: [0.96, -0.26,  0.02], icon: 'ear' },
+    { id: 'ears',    name: 'Ear',            node: [1.16, -0.26,  0.02], icon: 'ear' },
     { id: 'skin',    name: 'Skin',           node: [1.34, -1.02,  0.40], icon: 'skin' },
     { id: 'muscles', name: 'Muscles',        node: [1.16, -1.28,  0.14], icon: 'muscle' },
     { id: 'blood',   name: 'Adrenal glands', node: [0.55, -1.30, -0.10], icon: 'drop' }

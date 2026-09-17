@@ -199,9 +199,10 @@
   function fissures(x, y, z) {
     var cut = 0;
 
-    /* Longitudinal fissure — the cleft between the hemispheres. */
-    var lg = Math.exp(-(x / 0.070) * (x / 0.070));
-    cut += 0.115 * lg * smoothstep(-0.30, 0.10, y);
+    /* Longitudinal fissure — the cleft between the hemispheres, and the thing
+       that makes a superior view read as a brain at all. */
+    var lg = Math.exp(-(x / 0.090) * (x / 0.090));
+    cut += 0.150 * lg * smoothstep(-0.48, -0.02, y);
 
     /* Sylvian fissure — the deep lateral groove above the temporal lobe. */
     var ys = ySylvian(z);
