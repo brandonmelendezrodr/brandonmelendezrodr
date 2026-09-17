@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neuroatlas — An Interactive Brain</title>
+<meta name="description" content="An interactive atlas of the human brain: explore what every region does, and watch neurons pulse along real signal pathways as the brain performs an action.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26"><path d="M11 4c-3 0-5 2-5 4.5 0 .6.1 1.1.3 1.6C4.9 11 4 12.4 4 14c0 1.4.7 2.7 1.8 3.4-.5.7-.8 1.6-.8 2.5 0 2.3 1.9 4.1 4.3 4.1.4 0 .8 0 1.1-.1.5 1.8 2.2 3.1 4.2 3.1 1.4 0 2.4-.6 2.4-1.5V5.6C17 4.7 16 4 14.6 4c-1.4 0-2.7.7-3.3 1.8C11.2 5.3 11.1 4 11 4Z" fill="currentColor" opacity=".9"/><path d="M21 4c3 0 5 2 5 4.5 0 .6-.1 1.1-.3 1.6 1.4.9 2.3 2.3 2.3 3.9 0 1.4-.7 2.7-1.8 3.4.5.7.8 1.6.8 2.5 0 2.3-1.9 4.1-4.3 4.1-.4 0-.8 0-1.1-.1-.5 1.8-2.2 3.1-4.2 3.1-1.4 0-2.4-.6-2.4-1.5V5.6c0-.9 1-1.6 2.4-1.6 1.4 0 2.7.7 3.3 1.8.1-.5.2-1.8.3-1.8Z" fill="currentColor" opacity=".55"/></svg>
+    </span>
+    <div class="brand-text">
+      <h1>Neuroatlas</h1>
+      <p>Study the brain region by region — then watch it think.</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" id="btn-tour" type="button">Guided tour</button>
+    <button class="btn btn-ghost" id="btn-quiz" type="button" aria-pressed="false">Quiz me</button>
+    <button class="btn btn-ghost btn-icon" id="btn-help" type="button" aria-label="How to use this">?</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ─────────────── LEFT: actions ─────────────── -->
+  <aside class="panel panel-left" aria-label="Actions">
+    <div class="panel-head">
+      <h2>Run an action</h2>
+      <p class="muted">Pick something the brain does. Neurons will fire along the real pathway, step by step.</p>
+    </div>
+    <div class="action-grid" id="action-grid" role="list"></div>
+
+    <div class="playback" id="playback" hidden>
+      <div class="playback-head">
+        <span class="pill" id="pb-title">—</span>
+        <div class="playback-btns">
+          <button class="btn btn-mini" id="pb-replay" type="button">Replay</button>
+          <button class="btn btn-mini" id="pb-stop" type="button">Stop</button>
+        </div>
+      </div>
+      <ol class="steps" id="steps"></ol>
+    </div>
+
+    <div class="panel-foot">
+      <label class="ctl">
+        <span>Signal speed</span>
+        <input type="range" id="speed" min="25" max="200" value="100" step="5" aria-label="Signal speed">
+      </label>
+      <label class="ctl ctl-check"><input type="checkbox" id="opt-labels" checked> <span>Region labels</span></label>
+      <label class="ctl ctl-check"><input type="checkbox" id="opt-areas"> <span>Functional areas</span></label>
+      <label class="ctl ctl-check"><input type="checkbox" id="opt-neurons" checked> <span>Neuron field</span></label>
+    </div>
+  </aside>
+
+  <!-- ─────────────── CENTER: the brain ─────────────── -->
+  <section class="stage-wrap" aria-label="Brain diagram">
+    <div class="stage" id="stage">
+      <svg id="brain" viewBox="0 0 1000 730" role="img" aria-label="Sagittal diagram of the human brain. Use tab and enter to explore regions.">
+        <defs>
+          <radialGradient id="deep-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#7cf3ff" stop-opacity=".30"/>
+            <stop offset="100%" stop-color="#7cf3ff" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="7" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <ellipse cx="470" cy="300" rx="420" ry="280" fill="url(#deep-glow)"/>
+        <g id="g-cortex"></g>
+        <g id="g-deep"></g>
+        <g id="g-stem"></g>
+        <g id="g-areas" class="areas-hidden"></g>
+        <g id="g-external"></g>
+        <g id="g-labels"></g>
+      </svg>
+      <canvas id="fx" aria-hidden="true"></canvas>
+      <div class="tooltip" id="tooltip" hidden></div>
+      <div class="stage-badge" id="stage-badge">sagittal view · left hemisphere, facing left</div>
+      <div class="quizbar" id="quizbar" hidden>
+        <div class="quiz-q"><span class="quiz-kicker">Find the region that…</span><strong id="quiz-prompt">—</strong></div>
+        <div class="quiz-meta"><span id="quiz-score">0 / 0</span><button class="btn btn-mini" id="quiz-skip" type="button">Skip</button><button class="btn btn-mini" id="quiz-exit" type="button">Exit</button></div>
+      </div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <!-- ─────────────── RIGHT: region detail ─────────────── -->
+  <aside class="panel panel-right" aria-label="Region detail">
+    <div class="search-wrap">
+      <input type="search" id="search" placeholder="Search 24 regions…" aria-label="Search regions" autocomplete="off">
+    </div>
+    <div class="region-list" id="region-list"></div>
+    <article class="detail" id="detail" tabindex="-1" aria-live="polite"></article>
+  </aside>
+</main>
+
+<div class="modal" id="help-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <h2 id="help-title">How to use Neuroatlas</h2>
+    <ul>
+      <li><strong>Hover or tab</strong> across the diagram to name a structure; <strong>click</strong> it to read what it does, what happens when it's damaged, and one thing worth remembering.</li>
+      <li><strong>Run an action</strong> from the left. A packet of activity travels the actual route the signal takes, pausing at each relay so you can read what that structure contributes.</li>
+      <li><strong>Functional areas</strong> (motor strip, Broca's, Wernicke's, V1…) sit on top of the lobes — toggle them on at the bottom left.</li>
+      <li><strong>Quiz me</strong> turns the diagram into a test: read the function, click the structure.</li>
+    </ul>
+    <p class="muted small">Anatomy is schematic — a teaching diagram, not a scan. Deep structures are drawn as if the hemisphere were cut down the middle.</p>
+    <button class="btn" id="help-close" type="button">Got it</button>
+  </div>
+</div>
+
+<footer class="footer">
+  <span>Neuroatlas · an interactive brain</span>
+  <span class="dot">·</span>
+  <span>built by Brandon Melendez-Rodriguez</span>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
